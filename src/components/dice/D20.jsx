@@ -156,7 +156,7 @@ export const D20 = ({ isStatic, onResult, rollId, ...props }) => {
           rotation={cfg.rot}
           fontSize={0.35}
           color={theme.textColor}
-          font="/fonts/DragonHunter.otf"
+          font={`${import.meta.env.BASE_URL}fonts/DragonHunter.otf`}
           anchorX="center"
           anchorY="middle"
           depthOffset={-1}
