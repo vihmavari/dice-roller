@@ -187,3 +187,11 @@ input[type="color"]::-webkit-color-swatch {
   align-items: center;
   z-index: 1000;
 }
+
+/* для нормального отображения шрифтов на gh-pages */
+@font-face {
+  font-family: 'DragonHunter';
+  /* Используйте ./ для относительного пути, если CSS лежит в src */
+  /* Или просто fonts/, если Vite сам подхватывает public */
+  src: url('/dice-roller/fonts/DragonHunter.otf') format('opentype');
+}
