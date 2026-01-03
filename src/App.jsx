@@ -3,7 +3,26 @@ import { DiceScene } from './components/dice/DiceScene';
 import { SettingsButton, SettingsPanel, TabSwitcher, InfoPanel, Footer } from './UI';
 import { useDiceTheme } from './context/DiceContext';
 
+if (process.env.NODE_ENV === 'development') {
+  import('eruda').then(({ default: eruda }) => {
+    eruda.init();
+  });
+}
+
 export default function DiceApp() {
+
+  useEffect(() => {
+    const tg = window.Telegram.WebApp;
+
+    tg.ready();
+
+    if (tg.isVersionAtLeast('7.7')) {
+      tg.setupSwipeBehavior({
+        allow_vertical_swipe: false 
+      });
+    }
+  }, []);
+
   const [tab, setTab] = useState('gallery');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [lastRoll, setLastRoll] = useState({ type: 'd20', result: null, id: 0 });
