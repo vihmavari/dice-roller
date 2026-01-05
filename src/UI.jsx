@@ -3,36 +3,49 @@ import { RotateCcw, Settings2 } from 'lucide-react';
 import { useDiceTheme } from './context/DiceContext';
 
 
-export const TabSwitcher = ({ tab, setTab }) => (
+export const TabSwitcher = ({ tab, setTab, onSettings }) => (
   <div style={{
     position: 'absolute',
     top: '3%',
-    left: '50%',          // Сдвигаем начало контейнера на центр экрана
-    transform: 'translateX(-50%)', // Сдвигаем сам контейнер назад на половину его ширины
+    left: '3%',
     zIndex: 100,
-    width: 'auto',        // Контейнер подстроится под размер кнопок
     display: 'flex',
-    justifyContent: 'center',
+    flexDirection: 'column',
     pointerEvents: 'none' 
   }}>
     <div 
-      className="flex bg-black/60 backdrop-blur-md rounded-xl border border-white/20 p-1 shadow-2xl"
+      className="flex flex-col bg-black/60 backdrop-blur-md rounded-xl border border-white/20 p-1 shadow-2xl"
       style={{ 
         pointerEvents: 'auto',
         display: 'flex',
+        flexDirection: 'column',
+        gap: '4px'
       }}
     >
       {['gallery', 'roller'].map((t) => (
         <button
           key={t}
           onClick={() => setTab(t)}
-          className={`px-4 sm:px-6 py-2 rounded-lg text-xs sm:text-sm font-bold transition-all ${
-            tab === t ? 'bg-white text-black' : 'text-gray-400 hover:text-white'
+          className={`px-4 py-2 rounded-lg text-[10px] sm:text-xs font-bold transition-all ${
+            tab === t 
+              ? 'bg-white text-black shadow-lg' 
+              : 'text-gray-400 hover:text-white hover:bg-white/5'
           }`}
+          style={{
+            writingMode: 'horizontal-tb',
+            textAlign: 'center',
+            minWidth: '80px'
+          }}
         >
           {t === 'gallery' ? 'ГАЛЕРЕЯ' : 'БРОСКИ'}
         </button>
       ))}
+      <button 
+        onClick={onSettings}
+        className="absolute -bottom-10 right-0 p-2 bg-gray-800 hover:bg-gray-700 rounded text-white transition-colors"
+      >
+        <Settings2 size={14} />
+      </button>
     </div>
   </div>
 );
@@ -81,26 +94,6 @@ export const InfoPanel = ({ lastRoll, totalSum, onReset }) => (
         className="absolute -bottom-10 right-0 p-2 bg-gray-800 hover:bg-gray-700 rounded text-white transition-colors"
       >
         <RotateCcw size={14} />
-      </button>
-  </div>
-);
-
-export const SettingsButton = ({ onSettings }) => (
-  <div style={{
-    position: 'absolute', 
-    top: '3%', 
-    left: '3%',
-    zIndex: 120, 
-    display: 'flex', 
-    flexDirection: 'column', 
-    gap: '10px',
-    pointerEvents: 'auto'
-  }}>
-    <button 
-        onClick={onSettings}
-        className="absolute -bottom-10 right-0 p-2 bg-gray-800 hover:bg-gray-700 rounded text-white transition-colors"
-      >
-        <Settings2 size={14} />
       </button>
   </div>
 );
@@ -182,12 +175,16 @@ export const Footer = ({ diceTypes, onRoll, activeType }) => (
     pointerEvents: 'none' 
   }}>
     <div 
-      className="flex bg-black/60 backdrop-blur-lg p-1.5 rounded-2xl border border-white/10 gap-2 overflow-x-auto shadow-2xl"
+      className="flex bg-black/60 backdrop-blur-lg p-1.5 rounded-2xl border border-white/10 shadow-2xl scrollbar-hide"
       style={{ 
         pointerEvents: 'auto',
-        maxWidth: '90%',
+        maxWidth: '95%',         // Увеличил ширину для мобилок
         display: 'flex',
-        gap: '5px'
+        gap: '4px',              // Чуть уменьшил зазор
+        overflowX: 'auto',       // Включаем горизонтальный скролл
+        msOverflowStyle: 'none', // Скрываем скроллбар в IE/Edge
+        scrollbarWidth: 'none',  // Скрываем скроллбар в Firefox
+        WebkitOverflowScrolling: 'touch' // Плавный скролл на iOS
       }}
     >
         {diceTypes.map(d => (
@@ -197,7 +194,8 @@ export const Footer = ({ diceTypes, onRoll, activeType }) => (
               e.stopPropagation();
               onRoll(d);
             }}
-            className={`px-4 sm:px-5 py-2 sm:py-3 rounded-xl font-bold transition-all active:scale-95 whitespace-nowrap ${
+            // Добавил flex-shrink-0, чтобы кнопки не сжимались в кашу
+            className={`flex-shrink-0 px-3 sm:px-5 py-2 sm:py-3 rounded-xl font-bold transition-all active:scale-95 whitespace-nowrap text-xs sm:text-sm ${
               activeType === d.toLowerCase() ? 'bg-indigo-600 text-white' : 'hover:bg-white/10 text-gray-400 hover:text-white'
             }`}
           >
@@ -205,5 +203,12 @@ export const Footer = ({ diceTypes, onRoll, activeType }) => (
           </button>
         ))}
       </div>
+      
+      {/* Стили для скрытия скроллбара в Chrome/Safari */}
+      <style>{`
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
   </div>
 );

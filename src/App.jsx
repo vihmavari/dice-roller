@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { DiceScene } from './components/dice/DiceScene';
-import { SettingsButton, SettingsPanel, TabSwitcher, InfoPanel, Footer } from './UI';
-import { useDiceTheme } from './context/DiceContext';
+import { SettingsPanel, TabSwitcher, InfoPanel, Footer } from './UI';
 
 export default function DiceApp() {
 
@@ -94,9 +93,7 @@ export default function DiceApp() {
 
       {/* Слой интерфейса поверх 3D */}
       <div style={{ position: 'relative', zIndex: 10, width: '100%', height: '100%', pointerEvents: 'none' }}>
-        <SettingsButton onSettings={() => setIsSettingsOpen(true)} />
-
-        <TabSwitcher tab={tab} setTab={setTab} />
+        <TabSwitcher tab={tab} setTab={setTab} onSettings={() => setIsSettingsOpen(true)} />
 
         {tab === 'roller' && (
           <InfoPanel 

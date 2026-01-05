@@ -12,18 +12,18 @@ import { D12 } from './D12';
 import { D20 } from './D20';
 import { useDiceTheme } from '../../context/DiceContext';
 
-const PhysicsFloor = () => {
+const PhysicsFloor = ( {height = 0} ) => {
   const { theme } = useDiceTheme();
   const [ref] = usePlane(() => ({ 
     rotation: [-Math.PI / 2, 0, 0], 
-    position: [0, 0, 0],
+    position: [0, height, 0],
     friction: 0.1,
     restitution: 0.5
   }));
   return (
     <mesh ref={ref} receiveShadow>
-      <planeGeometry args={[20, 20]} />
-      <meshStandardMaterial color={theme.floorColor} />
+      <planeGeometry args={[200, 200]} />
+      <meshStandardMaterial color={theme.floorColor} side={2} depthWrite={true}/>
     </mesh>
   );
 };
@@ -36,6 +36,7 @@ export const DiceScene = ({ lastRoll, isPhysicsEnabled, onPhysicsResult }) => (
     {isPhysicsEnabled ? (
       <Physics gravity={[0, -9.81, 0]}>
         <PhysicsFloor />
+        <PhysicsFloor height={-0.1}/>
         <PhysicalDice 
           key={lastRoll.id} 
           rollId={lastRoll.id}
