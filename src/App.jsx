@@ -3,23 +3,20 @@ import { DiceScene } from './components/dice/DiceScene';
 import { SettingsButton, SettingsPanel, TabSwitcher, InfoPanel, Footer } from './UI';
 import { useDiceTheme } from './context/DiceContext';
 
-if (process.env.NODE_ENV === 'development') {
-  import('eruda').then(({ default: eruda }) => {
-    eruda.init();
-  });
-}
-
 export default function DiceApp() {
 
   useEffect(() => {
     const tg = window.Telegram.WebApp;
-
     tg.ready();
 
-    if (tg.isVersionAtLeast('7.7')) {
-      tg.setupSwipeBehavior({
-        allow_vertical_swipe: false 
-      });
+    if (typeof tg.setupSwipeBehavior === 'function') {
+      tg.setupSwipeBehavior({ allow_vertical_swipe: false });
+    } 
+    else if (typeof tg.disableVerticalSwipes === 'function') {
+      tg.disableVerticalSwipes();
+    }
+    else {
+      console.log("Вертикальные свайпы отключить не получилось, нужная функция не найдена");
     }
   }, []);
 
