@@ -175,16 +175,15 @@ export const Footer = ({ diceTypes, onRoll, activeType }) => (
     pointerEvents: 'none' 
   }}>
     <div 
-      className="flex bg-black/60 backdrop-blur-lg p-1.5 rounded-2xl border border-white/10 shadow-2xl scrollbar-hide"
+      className="bg-black/60 backdrop-blur-lg p-2 rounded-2xl border border-white/10 shadow-2xl"
       style={{ 
         pointerEvents: 'auto',
-        maxWidth: '95%',         // Увеличил ширину для мобилок
-        display: 'flex',
-        gap: '4px',              // Чуть уменьшил зазор
-        overflowX: 'auto',       // Включаем горизонтальный скролл
-        msOverflowStyle: 'none', // Скрываем скроллбар в IE/Edge
-        scrollbarWidth: 'none',  // Скрываем скроллбар в Firefox
-        WebkitOverflowScrolling: 'touch' // Плавный скролл на iOS
+        width: '90%',
+        maxWidth: '400px', // Ограничиваем ширину, чтобы сетка не растягивалась слишком сильно
+        display: 'grid',
+        // Создаем сетку: 4 колонки (или сколько влезет), автоматически перенося на 2 строки
+        gridTemplateColumns: 'repeat(4, 1fr)', 
+        gap: '6px',
       }}
     >
         {diceTypes.map(d => (
@@ -194,21 +193,15 @@ export const Footer = ({ diceTypes, onRoll, activeType }) => (
               e.stopPropagation();
               onRoll(d);
             }}
-            // Добавил flex-shrink-0, чтобы кнопки не сжимались в кашу
-            className={`flex-shrink-0 px-3 sm:px-5 py-2 sm:py-3 rounded-xl font-bold transition-all active:scale-95 whitespace-nowrap text-xs sm:text-sm ${
-              activeType === d.toLowerCase() ? 'bg-indigo-600 text-white' : 'hover:bg-white/10 text-gray-400 hover:text-white'
+            className={`px-2 py-2.5 rounded-xl font-bold transition-all active:scale-95 text-[11px] sm:text-xs ${
+              activeType === d.toLowerCase() 
+                ? 'bg-indigo-600 text-white shadow-[0_0_15px_rgba(79,70,229,0.4)]' 
+                : 'bg-white/5 text-gray-300 hover:text-white hover:bg-white/10'
             }`}
           >
             {d}
           </button>
         ))}
       </div>
-      
-      {/* Стили для скрытия скроллбара в Chrome/Safari */}
-      <style>{`
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-        }
-      `}</style>
   </div>
 );
