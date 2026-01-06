@@ -11,6 +11,7 @@ import { D10 } from './D10';
 import { D12 } from './D12';
 import { D20 } from './D20';
 import { D100 } from './D100';
+import { DicePool } from './DicePool';
 import { useDiceTheme } from '../../context/DiceContext';
 
 const PhysicsFloor = ({ height = 0 }) => {
@@ -25,7 +26,7 @@ const PhysicsFloor = ({ height = 0 }) => {
 
   return (
     <mesh ref={ref} receiveShadow>
-      <circleGeometry args={[12, 64]} />
+      <circleGeometry args={[24, 128]} />
       <meshStandardMaterial 
         color={theme.floorColor}
         transparent={true}
@@ -53,7 +54,7 @@ const PhysicsFloor = ({ height = 0 }) => {
 };
 
 
-export const InvisibleWalls = ({ radius = 12.5, count = 8 }) => {
+export const InvisibleWalls = ({ radius = 24, count = 8 }) => {
   const wallWidth = useMemo(() => {
     return 2 * radius * Math.tan(Math.PI / count);
   }, [radius, count]);
@@ -96,21 +97,52 @@ const Wall = ({ index, total, radius, width }) => {
 };
 
 export const DiceScene = ({ lastRoll, isPhysicsEnabled, onPhysicsResult }) => (  
-  <Canvas shadows camera={{ position: [0, 8, 12], fov: 45 }}>
+  <Canvas shadows camera={{ position: [0, 10, 15], fov: 35 }}>
+    <directionalLight
+      position={[5, 15, 5]}
+      intensity={1.5}
+      castShadow
+      shadow-mapSize={[1024, 1024]}
+    >
+      <orthographicCamera attach="shadow-camera" args={[-10, 10, 10, -10, 0.5, 30]} />
+    </directionalLight>
     <ambientLight intensity={1} />
-    <pointLight position={[10, 10, 10]} intensity={1.5} castShadow />
+    <pointLight position={[0, 10, 0]} intensity={1.5} castShadow />
     
     {isPhysicsEnabled ? (
-      <Physics gravity={[0, -9.81, 0]}>
+      <Physics 
+        gravity={[0, -9.81, 0]}
+        tolerance={0.001}
+        size={10}
+        iterations={20}
+        allowSleep 
+        broadphase="SAP"
+        defaultContactMaterial={{
+          contactEquationStiffness: 1e5,
+          contactEquationRelaxation: 3,
+          friction: 0.1,
+          restitution: 0.3
+        }}>
         <PhysicsFloor />
         <InvisibleWalls />
-        <PhysicalDice 
-          key={lastRoll.id} 
-          rollId={lastRoll.id}
-          type={lastRoll.type} 
-          config={lastRoll}
-          onResult={onPhysicsResult} 
-        />
+
+        {lastRoll.type === 'custom' ? (
+          <DicePool 
+            key={lastRoll.id}
+            rollId={lastRoll.id}
+            formula={lastRoll.formula}
+            onResult={onPhysicsResult}
+          />
+        ) : (
+          <PhysicalDice 
+            key={lastRoll.id} 
+            rollId={lastRoll.id}
+            type={lastRoll.type} 
+            config={lastRoll}
+            onResult={onPhysicsResult} 
+          />
+        )}
+
       </Physics>
     ) : (
       /* Оборачиваем превью в физику с нулевой гравитацией */
@@ -121,8 +153,8 @@ export const DiceScene = ({ lastRoll, isPhysicsEnabled, onPhysicsResult }) => (
       </Physics>
     )}
     <OrbitControls 
-      minDistance={5} 
-      maxDistance={25} 
+      minDistance={3} 
+      maxDistance={50} 
       maxPolarAngle={Math.PI / 2.1}
       enableDamping={true}
       dampingFactor={0.05}

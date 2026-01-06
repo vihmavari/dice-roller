@@ -10,7 +10,7 @@ export const D10 = ({ isStatic, onResult, rollId, isTens, ...props }) => {
     const { geometry, textConfig } = useMemo(() => {
     const R = 1;        
     const h = 0.1;     
-    const p = 0.11;     
+    const p = 0.099;     
     
     const cosPi5 = Math.cos(Math.PI / 5);
     const H = p * ((h + Math.pow(R, 2) * (1 + cosPi5)) / (2 * h));

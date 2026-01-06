@@ -59,17 +59,42 @@ export const D8 = ({ isStatic, onResult, rollId, ...props }) => {
   }, []);
 
   const physicsArgs = useMemo(() => {
-    const vertices = geometry.attributes.position.array;
-    const points = [];
-    for (let i = 0; i < vertices.length; i += 3) {
-      points.push([vertices[i], vertices[i + 1], vertices[i + 2]]);
+    const posAttr = geometry.attributes.position;
+    const indexAttr = geometry.index;
+    
+    const uniqueVertices = [];
+    const map = new Map();
+    const precision = 4;
+
+    for (let i = 0; i < posAttr.count; i++) {
+      const x = Number(posAttr.getX(i).toFixed(precision));
+      const y = Number(posAttr.getY(i).toFixed(precision));
+      const z = Number(posAttr.getZ(i).toFixed(precision));
+      const key = `${x}_${y}_${z}`;
+      
+      if (!map.has(key)) {
+        map.set(key, uniqueVertices.length);
+        uniqueVertices.push([x, y, z]);
+      }
     }
+
     const faces = [];
-    const indices = geometry.index.array;
-    for (let i = 0; i < indices.length; i += 3) {
-      faces.push([indices[i], indices[i + 1], indices[i + 2]]);
+    for (let i = 0; i < indexAttr.count; i += 3) {
+      const a = indexAttr.getX(i);
+      const b = indexAttr.getX(i + 1);
+      const c = indexAttr.getX(i + 2);
+      
+      const getNewIdx = (oldIdx) => {
+        const x = posAttr.getX(oldIdx).toFixed(precision);
+        const y = posAttr.getY(oldIdx).toFixed(precision);
+        const z = posAttr.getZ(oldIdx).toFixed(precision);
+        return map.get(`${Number(x)}_${Number(y)}_${Number(z)}`);
+      };
+
+      faces.push([getNewIdx(a), getNewIdx(b), getNewIdx(c)]);
     }
-    return [points, faces, []];
+
+    return [uniqueVertices, faces, []]; 
   }, [geometry]);
 
   const [ref, api] = useConvexPolyhedron(() => ({

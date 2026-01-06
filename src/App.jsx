@@ -25,6 +25,21 @@ export default function DiceApp() {
   const [history, setHistory] = useState([]);
 
   const diceTypes = ['D4', 'D6', 'D8', 'D10', 'D12', 'D20', 'D100'];
+  
+  const handleCustomRoll = () => {
+  const customFormula = [
+    { type: 'D10', count: 20 },
+  ];
+  
+  const newRoll = { 
+    type: 'custom', 
+    formula: customFormula,
+    result: null, 
+    id: Date.now() 
+  };
+  
+  setLastRoll(newRoll);
+};
 
   const handleRoll = (dType) => {
     const isPhysDice = true;
@@ -32,7 +47,15 @@ export default function DiceApp() {
     
     // Для PhysDice ставим null, для остальных — считаем сразу
     const result = isPhysDice ? null : (Math.floor(Math.random() * sides) + 1);
-    const newRoll = { type: dType.toLowerCase(), result, id: Date.now() };
+    const newRoll = { 
+      type: dType.toLowerCase(), 
+      formula: dType === 'CUSTOM' ? [
+      { type: 'D6', count: 2 },
+      { type: 'D8', count: 3 }
+    ] : null,
+      result, 
+      id: Date.now() 
+    };
     
     setLastRoll(newRoll);
     if (tab === 'roller' && result !== null) {
@@ -107,6 +130,7 @@ export default function DiceApp() {
           diceTypes={diceTypes} 
           onRoll={handleRoll} 
           activeType={lastRoll.type} 
+          onCustom={handleCustomRoll}
         />
 
         {isSettingsOpen && (
