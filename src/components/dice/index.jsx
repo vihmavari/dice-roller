@@ -4,6 +4,7 @@ import { D8 } from './D8';
 import { D10 } from './D10';
 import { D12 } from './D12';
 import { D20 } from './D20';
+import { D100 } from './D100';
 import { CommonDice } from './CommonDice';
 
 export const PhysicalDice = ({ type, rollId, onResult }) => {
@@ -22,6 +23,8 @@ export const PhysicalDice = ({ type, rollId, onResult }) => {
       return <D12 rollId={rollId} onResult={onResult} />;
     case 'd20':
       return <D20 rollId={rollId} onResult={onResult} />;
+    case 'd100':
+      return <D100 rollId={rollId} onResult={onResult} />;
     default:
       return <CommonDice type={diceType} rollId={rollId} />;
   }

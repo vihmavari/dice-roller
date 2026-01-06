@@ -24,7 +24,7 @@ export default function DiceApp() {
   const [lastRoll, setLastRoll] = useState({ type: 'd20', result: null, id: 0 });
   const [history, setHistory] = useState([]);
 
-  const diceTypes = ['D4', 'D6', 'D8', 'D10', 'D12', 'D20'];
+  const diceTypes = ['D4', 'D6', 'D8', 'D10', 'D12', 'D20', 'D100'];
 
   const handleRoll = (dType) => {
     const isPhysDice = true;

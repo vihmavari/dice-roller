@@ -10,6 +10,7 @@ import { D8 } from './D8';
 import { D10 } from './D10';
 import { D12 } from './D12';
 import { D20 } from './D20';
+import { D100 } from './D100';
 import { useDiceTheme } from '../../context/DiceContext';
 
 const PhysicsFloor = ({ height = 0 }) => {
@@ -131,6 +132,13 @@ export const DiceScene = ({ lastRoll, isPhysicsEnabled, onPhysicsResult }) => (
 );
 
 const DicePreview = ({ type }) => {
+  if (type === 'd100') {
+    return (
+      <group scale={1.5}>
+         <D100 isStatic={true} /> 
+      </group>
+    );
+  }
   if (type === 'd20') {
     return (
       <group scale={1.5}>

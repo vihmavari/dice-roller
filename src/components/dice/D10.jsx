@@ -4,7 +4,7 @@ import { Edges, Text } from '@react-three/drei';
 import * as THREE from 'three';
 import { useDiceTheme } from '../../context/DiceContext';
 
-export const D10 = ({ isStatic, onResult, rollId, ...props }) => {
+export const D10 = ({ isStatic, onResult, rollId, isTens, ...props }) => {
     const { theme } = useDiceTheme();
     
     const { geometry, textConfig } = useMemo(() => {
@@ -195,21 +195,30 @@ export const D10 = ({ isStatic, onResult, rollId, ...props }) => {
         <Edges threshold={15} color={theme.edgeColor} lineWidth={2} />
       </mesh>
 
-      {textConfig.map((cfg, idx) => (
-        <Text
-          key={idx}
-          position={cfg.pos}
-          rotation={cfg.rot}
-          fontSize={0.5}
-          color={theme.textColor}
-          font={`${import.meta.env.BASE_URL}fonts/DragonHunter.otf`}
-          anchorX="center"
-          anchorY="middle"
-          depthOffset={-1}
-        >
-          {cfg.num}
-        </Text>
-      ))}
+      {textConfig.map((cfg, idx) => {
+        let displayValue;
+        if (isTens) {
+          displayValue = cfg.num === 0 ? "00" : `${cfg.num}0`;
+        } else {
+          displayValue = cfg.num === 0 ? "0" : cfg.num;
+        }
+
+        return (
+          <Text
+            key={idx}
+            position={cfg.pos}
+            rotation={cfg.rot}
+            fontSize={isTens ? 0.4 : 0.5} 
+            color={theme.textColor}
+            font={`${import.meta.env.BASE_URL}fonts/DragonHunter.otf`}
+            anchorX="center"
+            anchorY="middle"
+            depthOffset={-1}
+          >
+            {displayValue}
+          </Text>
+        );
+      })}
     </group>
   );
 };
