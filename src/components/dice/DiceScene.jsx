@@ -1,8 +1,8 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import * as THREE from 'three';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Center, Edges } from '@react-three/drei';
-import { Physics, usePlane } from '@react-three/cannon';
+import { Physics, usePlane, useCylinder } from '@react-three/cannon';
 import { PhysicalDice } from './index';
 import { D4 } from './D4';
 import { D6 } from './D6';
@@ -12,18 +12,84 @@ import { D12 } from './D12';
 import { D20 } from './D20';
 import { useDiceTheme } from '../../context/DiceContext';
 
-const PhysicsFloor = ( {height = 0} ) => {
+const PhysicsFloor = ({ height = 0 }) => {
   const { theme } = useDiceTheme();
+  
   const [ref] = usePlane(() => ({ 
     rotation: [-Math.PI / 2, 0, 0], 
     position: [0, height, 0],
     friction: 0.1,
     restitution: 0.5
   }));
+
   return (
     <mesh ref={ref} receiveShadow>
-      <planeGeometry args={[200, 200]} />
-      <meshStandardMaterial color={theme.floorColor} side={2} depthWrite={true}/>
+      <circleGeometry args={[12, 64]} />
+      <meshStandardMaterial 
+        color={theme.floorColor}
+        transparent={true}
+        side={2}
+        onBeforeCompile={(shader) => {
+          shader.vertexShader = `varying vec2 vUv;\n` + shader.vertexShader;
+          shader.vertexShader = shader.vertexShader.replace(
+            `#include <uv_vertex>`,
+            `vUv = uv;`
+          );
+
+          shader.fragmentShader = `varying vec2 vUv;\n` + shader.fragmentShader;
+          shader.fragmentShader = shader.fragmentShader.replace(
+            `vec4 diffuseColor = vec4( diffuse, opacity );`,
+            `
+            float dist = distance(vUv, vec2(0.5));
+            float vignette = smoothstep(0.6, 0.2, dist); 
+            vec4 diffuseColor = vec4( diffuse, opacity * vignette );
+            `
+          );
+        }}
+      />
+    </mesh>
+  );
+};
+
+
+export const InvisibleWalls = ({ radius = 12.5, count = 8 }) => {
+  const wallWidth = useMemo(() => {
+    return 2 * radius * Math.tan(Math.PI / count);
+  }, [radius, count]);
+
+  return (
+    <group>
+      {Array.from({ length: count }).map((_, i) => (
+        <Wall 
+          key={i} 
+          index={i} 
+          total={count} 
+          radius={radius} 
+          width={wallWidth} 
+        />
+      ))}
+    </group>
+  );
+};
+
+const Wall = ({ index, total, radius, width }) => {
+  const angle = (index / total) * Math.PI * 2;
+  
+  const x = Math.cos(angle) * radius;
+  const z = Math.sin(angle) * radius;
+
+  const [ref] = usePlane(() => ({
+    rotation: [0, -angle - Math.PI / 2, 0],
+    position: [x, 5, z],
+    type: 'Static',
+    friction: 0.1,
+    restitution: 0.5
+  }));
+
+  return (
+    <mesh ref={ref}>
+      <planeGeometry args={[width, 10]} /> 
+      <meshBasicMaterial transparent opacity={0} depthWrite={false} />
     </mesh>
   );
 };
@@ -36,7 +102,7 @@ export const DiceScene = ({ lastRoll, isPhysicsEnabled, onPhysicsResult }) => (
     {isPhysicsEnabled ? (
       <Physics gravity={[0, -9.81, 0]}>
         <PhysicsFloor />
-        <PhysicsFloor height={-0.1}/>
+        <InvisibleWalls />
         <PhysicalDice 
           key={lastRoll.id} 
           rollId={lastRoll.id}
@@ -53,7 +119,14 @@ export const DiceScene = ({ lastRoll, isPhysicsEnabled, onPhysicsResult }) => (
         </Center>
       </Physics>
     )}
-    <OrbitControls />
+    <OrbitControls 
+      minDistance={5} 
+      maxDistance={25} 
+      maxPolarAngle={Math.PI / 2.1}
+      enableDamping={true}
+      dampingFactor={0.05}
+      enablePan={false}
+    />
   </Canvas>
 );
 
