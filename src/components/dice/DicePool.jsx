@@ -12,6 +12,11 @@ export const DicePool = ({ formula, rollId, onResult, ...props }) => {
   const [results, setResults] = useState({});
   const hasSentResult = useRef(false);
 
+  useEffect(() => {
+    setResults({});
+    hasSentResult.current = false;
+  }, [rollId]);
+
   const diceList = useMemo(() => {
     let list = [];
     const spacing = 2; 
@@ -26,7 +31,6 @@ export const DicePool = ({ formula, rollId, onResult, ...props }) => {
 
         const x = Math.cos(theta) * radius;
         const z = Math.sin(theta) * radius;
-
         const y = 8 + globalIdx * 0.8;
 
         list.push({
@@ -46,16 +50,11 @@ export const DicePool = ({ formula, rollId, onResult, ...props }) => {
   }, [formula, rollId]);
 
   useEffect(() => {
-    setResults({});
-    hasSentResult.current = false;
-  }, [rollId]);
-
-  useEffect(() => {
-    const values = Object.values(results);
+    const values = Object.values(results);    
     if (values.length === diceList.length && diceList.length > 0 && !hasSentResult.current) {
-      const total = values.reduce((sum, val) => sum + val, 0);
       hasSentResult.current = true;
-      onResult(total);
+      
+      onResult(values); 
     }
   }, [results, diceList.length, onResult]);
 

@@ -60,10 +60,15 @@ export default function DiceApp() {
     }
   };
 
-  const onPhysicsResult = useCallback((value) => {
+  const onPhysicsResult = useCallback((values) => {
     setLastRoll(prev => {
       if (prev.result !== null) return prev;
-      return { ...prev, result: value };
+      const total = Array.isArray(values) ? values.reduce((a, b) => a + b, 0) : values;
+      return { 
+        ...prev, 
+        result: total, 
+        individualResults: Array.isArray(values) ? values : [values] 
+      };
     });
   }, []);
 

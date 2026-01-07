@@ -51,53 +51,94 @@ export const TabSwitcher = ({ tab, setTab, onSettings }) => (
   </div>
 );
 
-export const InfoPanel = ({ lastRoll, totalSum, onReset }) => (
-  <div style={{
-    position: 'absolute', 
-    top: '3%', 
-    right: '3%',
-    zIndex: 110, 
-    display: 'flex', 
-    flexDirection: 'column', 
-    gap: '10px',
-    pointerEvents: 'auto'
-  }}>
-    <div style={{
-      background: 'rgba(0, 0, 0, 0.7)', 
-      padding: '10px 10px', 
-      borderRadius: '12px',
-      border: '1px solid rgba(255,255,255,0.2)', 
-      color: 'white', 
-      textAlign: 'right',
-      backdropFilter: 'blur(10px)',
-      minWidth: '50px'
-    }}>
-      <div style={{ fontSize: '90%', opacity: 0.7, textTransform: 'uppercase' }}>Выпало</div>
-      <div className="text-xl sm:text-2xl font-bold">{lastRoll.result || '-'}</div>
-    </div>
+export const InfoPanel = ({ lastRoll, totalSum, onReset }) => {
+  const isCustom = lastRoll.type === 'custom';
+  const results = lastRoll.individualResults || [];
+  const hasResults = results.length > 0;
+  const minVal = hasResults ? Math.min(...results) : '-';
+  const maxVal = hasResults ? Math.max(...results) : '-';
 
+  return (
     <div style={{
-      background: 'rgba(51, 144, 236, 0.2)', 
-      padding: '10px 10px', 
-      borderRadius: '12px',
-      border: '2px solid #3390ec', 
-      color: 'white', 
-      textAlign: 'right',
-      backdropFilter: 'blur(10px)', 
-      position: 'relative'
+      position: 'absolute', 
+      top: '3%', 
+      right: '3%',
+      zIndex: 110, 
+      display: 'flex', 
+      flexDirection: 'column', 
+      gap: '10px',
+      pointerEvents: 'auto'
     }}>
-      <div style={{ fontSize: '90%', opacity: 0.9, textTransform: 'uppercase' }}>Всего</div>
-      <div className="text-2xl sm:text-3xl font-bold">{totalSum}</div>
-    </div>
+      <div style={{
+        background: 'rgba(0, 0, 0, 0.7)', 
+        padding: '10px 10px', 
+        borderRadius: '12px',
+        border: '1px solid rgba(255,255,255,0.2)', 
+        color: 'white', 
+        textAlign: 'right',
+        backdropFilter: 'blur(10px)',
+        minWidth: '50px'
+      }}>
+        <div style={{ fontSize: '90%', opacity: 0.7, textTransform: 'uppercase' }}>Выпало</div>
+        <div className="text-xl sm:text-2xl font-bold">{lastRoll.result !== null ? lastRoll.result : '-'}</div>
+      </div>
 
-    <button 
+      <div style={{
+        background: 'rgba(51, 144, 236, 0.2)', 
+        padding: '10px 10px', 
+        borderRadius: '12px',
+        border: '2px solid #3390ec', 
+        color: 'white', 
+        textAlign: 'right',
+        backdropFilter: 'blur(10px)', 
+        position: 'relative'
+      }}>
+        <div style={{ fontSize: '90%', opacity: 0.9, textTransform: 'uppercase' }}>Всего</div>
+        <div className="text-2xl sm:text-3xl font-bold">{totalSum}</div>
+      </div>
+
+      {isCustom && (
+        <div style={{
+          display: 'flex',
+          justifyContent: 'flex-end',
+          gap: '8px',
+          color: 'white',
+          fontSize: '12px',
+          fontWeight: 'bold',
+          marginTop: '-2px'
+        }}>
+          <div style={{ 
+            background: 'rgba(255, 77, 77, 0.2)', 
+            padding: '2px 8px', 
+            borderRadius: '6px',
+            border: '1px solid rgba(255, 77, 77, 0.3)',
+            minWidth: '45px',
+            textAlign: 'center'
+          }}>
+            MIN: {minVal}
+          </div>
+          <div style={{ 
+            background: 'rgba(77, 255, 136, 0.2)', 
+            padding: '2px 8px', 
+            borderRadius: '6px',
+            border: '1px solid rgba(77, 255, 136, 0.3)',
+            minWidth: '45px',
+            textAlign: 'center'
+          }}>
+            MAX: {maxVal}
+          </div>
+        </div>
+      )}
+
+      <button 
         onClick={onReset}
         className="absolute -bottom-10 right-0 p-2 bg-gray-800 hover:bg-gray-700 rounded text-white transition-colors"
       >
         <RotateCcw size={14} />
       </button>
-  </div>
-);
+    </div>
+  );
+};
 
 export const SettingsPanel = ({ onClose }) => {
   const { theme, updateColor } = useDiceTheme();
