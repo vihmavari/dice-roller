@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { DiceScene } from './components/dice/DiceScene';
 import { SettingsPanel, ChooseCustomPanel, TabSwitcher, InfoPanel, Footer } from './UI';
 
@@ -44,6 +44,8 @@ export default function DiceApp() {
 };
 
   const handleRoll = (dType) => {
+    requestDeviceMotion()
+    
     const isPhysDice = true;
     const sides = parseInt(dType.substring(1));
     
@@ -59,6 +61,64 @@ export default function DiceApp() {
       setHistory(prev => [...prev, result]);
     }
   };
+
+  const requestDeviceMotion = async () => {
+    if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+      try {
+        const permission = await DeviceMotionEvent.requestPermission();
+        if (permission === 'granted') {
+          console.log("Доступ к акселерометру получен");
+        }
+      } catch (e) {
+        console.error("Ошибка запроса прав:", e);
+      }
+    }
+  };
+
+  const shakeDataRef = useRef({ type: lastRoll.type, formula: lastRoll.formula });
+  
+  useEffect(() => {
+    shakeDataRef.current = { type: lastRoll.type, formula: lastRoll.formula };
+  }, [lastRoll.type, lastRoll.formula]);
+
+  useEffect(() => {
+    const handleMotion = (event) => {
+      if (tab !== 'roller' || isSettingsOpen || isChooseCustomOpen) return;
+
+      const acc = event.acceleration || event.accelerationIncludingGravity;
+      if (!acc) return;
+
+      const curTime = Date.now();
+      console.log(curTime - lastShakeTimeRef.current)
+      if ((curTime - lastShakeTimeRef.current) > 1500) {
+        
+        const shakeForce = Math.sqrt(acc.x**2 + acc.y**2 + acc.z**2);
+
+        // ПОРОГ:
+        // 15-20 — легкая тряска
+        // 25-30 — уверенный бросок
+        // 40+ — нужно реально сильно дернуть
+        if (shakeForce > 20) {
+          lastShakeTimeRef.current = curTime;
+
+          if (shakeDataRef.current.type === 'custom') {
+            handleCustomRoll(shakeDataRef.current.formula);
+          } else {
+            handleRoll(shakeDataRef.current.type.toUpperCase());
+          }
+
+          if (window.Telegram?.WebApp?.HapticFeedback) {
+            window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+          }
+        }
+      }
+    };
+
+    window.addEventListener('devicemotion', handleMotion);
+    return () => window.removeEventListener('devicemotion', handleMotion);
+  }, [tab, isSettingsOpen, isChooseCustomOpen]);
+
+  const lastShakeTimeRef = useRef(0);
 
   const onPhysicsResult = useCallback((values) => {
     setLastRoll(prev => {
