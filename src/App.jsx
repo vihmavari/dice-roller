@@ -82,7 +82,6 @@ export default function DiceApp() {
   };
 
   return (
-    // Принудительно растягиваем основной контейнер
     <div style={{ 
       position: 'fixed', 
       top: 0, 
@@ -95,7 +94,6 @@ export default function DiceApp() {
       overflow: 'hidden'
     }}>
       
-      {/* 3D Сцена как нижний слой */}
       <div style={{ 
         position: 'absolute', 
         top: 0, 
@@ -111,7 +109,6 @@ export default function DiceApp() {
         />
       </div>
 
-      {/* Слой интерфейса поверх 3D */}
       <div style={{ position: 'relative', zIndex: 10, width: '100%', height: '100%', pointerEvents: 'none' }}>
         <TabSwitcher tab={tab} setTab={setTab} onSettings={() => setIsSettingsOpen(true)} />
 

@@ -220,7 +220,7 @@ export const ChooseCustomPanel = ({ onClose, onSelect }) => {
           <button className="close-button" onClick={handleClose}>&times;</button>
         </div>
 
-        <div className="settings-body" style={{ maxHeight: '60vh', overflowY: 'auto', padding: '10px' }}>
+        <div className="settings-body" style={{ maxHeight: '60vh', overflowY: 'auto', padding: '0.5rem' }}>
           
           {editingIndex === null && (
             <div className="flex flex-col gap-3">
