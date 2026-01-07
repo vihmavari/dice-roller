@@ -358,7 +358,7 @@ const FormulaEditor = ({ index, initialData, onSave, onCancel }) => {
   );
 };
 
-export const Footer = ({ diceTypes, onRoll, activeType, onCustom }) => (
+export const Footer = ({ diceTypes, onRoll, activeType, onCustom, active_tab }) => (
   <div style={{
     position: 'absolute',
     bottom: '20px',
@@ -376,7 +376,7 @@ export const Footer = ({ diceTypes, onRoll, activeType, onCustom }) => (
         width: '90%',
         maxWidth: '400px',
         display: 'grid',
-        gridTemplateColumns: 'repeat(4, 1fr)', 
+        gridTemplateColumns: active_tab === 'roller' ? 'repeat(4, 1fr)' : 'repeat(auto-fit, minmax(60px, 1fr))', 
         gap: '6px',
       }}
     >
@@ -396,15 +396,19 @@ export const Footer = ({ diceTypes, onRoll, activeType, onCustom }) => (
             {d}
           </button>
         ))}
-        <button 
-          className={`px-2 py-2.5 rounded-xl font-bold transition-all active:scale-95 text-[11px] sm:text-xs ${
-            activeType === 'custom' 
-              ? 'bg-indigo-600 text-white shadow-[0_0_15px_rgba(79,70,229,0.4)]' 
-              : 'bg-white/5 text-gray-300 hover:text-white hover:bg-white/10'
-          }`}
-          onClick={onCustom}>
-          Custom
-        </button>
+
+        {active_tab === 'roller' && (
+          <button 
+            className={`px-2 py-2.5 rounded-xl font-bold transition-all active:scale-95 text-[11px] sm:text-xs ${
+              activeType === 'custom' 
+                ? 'bg-indigo-600 text-white shadow-[0_0_15px_rgba(79,70,229,0.4)]' 
+                : 'bg-white/5 text-gray-300 hover:text-white hover:bg-white/10'
+            }`}
+            onClick={onCustom}
+          >
+            Custom
+          </button>
+        )}
       </div>
   </div>
 );

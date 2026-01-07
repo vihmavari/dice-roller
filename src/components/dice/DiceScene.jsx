@@ -214,30 +214,10 @@ const DicePreview = ({ type }) => {
     );
   }
 
-  // Заглушки для остальных
+  // для остальных отображать D20 :)
   return (
-     <mesh rotation={[0.4, 0.4, 0]} scale={1.3}>
-        <OldDiceAppearance type={type} />
-     </mesh>
-  );
-};
-
-const OldDiceAppearance = ({ type }) => {
-  const geometry = React.useMemo(() => {
-    switch (type) {
-      case 'd4': return new THREE.TetrahedronGeometry(1.2);
-      case 'd6': return new THREE.BoxGeometry(1.5, 1.5, 1.5);
-      case 'd8': return new THREE.OctahedronGeometry(1.2);
-      case 'd12': return new THREE.DodecahedronGeometry(1.2);
-      case 'd20': return new THREE.IcosahedronGeometry(1.2);
-      default: return new THREE.BoxGeometry(1.5, 1.5, 1.5);
-    }
-  }, [type]);
-
-  return (
-    <mesh geometry={geometry}>
-      <meshStandardMaterial color="#1e1b4b" transparent opacity={0.9} />
-      <Edges threshold={15} color="#6366f1" lineWidth={2} />
-    </mesh>
-  );
+      <group scale={1.5}>
+         <D20 isStatic={true} /> 
+      </group>
+    );
 };

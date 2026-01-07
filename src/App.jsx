@@ -125,6 +125,7 @@ export default function DiceApp() {
           onRoll={handleRoll} 
           activeType={lastRoll.type} 
           onCustom={() => setIsChooseCustomOpen(true)}
+          active_tab={tab}
         />
 
         {isSettingsOpen && (
