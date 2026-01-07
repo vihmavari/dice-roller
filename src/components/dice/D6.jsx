@@ -80,6 +80,22 @@ export const D6 = ({ isStatic, onResult, rollId, ...props }) => {
           }
         });
 
+        if (maxDot < 0.99) {
+          console.log("D6 застрял (maxDot:", maxDot, "), перебрасываю...");
+          
+          api.position.set(0, 8, 0); 
+          
+          api.velocity.set(Math.random() * 4 - 2, 0, Math.random() * 4 - 2);
+          api.angularVelocity.set(
+            Math.random() * 20 - 10,
+            Math.random() * 20 - 10,
+            Math.random() * 20 - 10
+          );
+
+          spawnTime.current = Date.now();
+          return; 
+        }
+
         if (detectedValue !== null && !hasSettled.current) {
           hasSettled.current = true;
           onResult(detectedValue);
@@ -91,7 +107,7 @@ export const D6 = ({ isStatic, onResult, rollId, ...props }) => {
       unsubsQuat();
       unsubsVel();
     };
-  }, [api, isStatic, onResult, textConfig]);
+  }, [api, isStatic, onResult, textConfig, rollId]);
 
   return (
     <mesh ref={ref} castShadow receiveShadow>

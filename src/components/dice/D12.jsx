@@ -133,51 +133,64 @@ export const D12 = ({ isStatic, onResult, rollId, ...props }) => {
   }, [api, isStatic]);
 
   const hasSettled = useRef(false);
-    const spawnTime = useRef(Date.now());
-  
-    useEffect(() => {
-      if (isStatic || !onResult) return;
-      hasSettled.current = false;
-      spawnTime.current = Date.now();
-  
-      let currentQuaternion = new THREE.Quaternion();
-  
-      const unsubsQuat = api.quaternion.subscribe(q => {
-        currentQuaternion.set(q[0], q[1], q[2], q[3]);
-      });
-  
-      const unsubsVel = api.velocity.subscribe(v => {
-        if (hasSettled.current) return;
-        if (Date.now() - spawnTime.current < 600) return;
-  
-        const speed = Math.sqrt(v[0] ** 2 + v[1] ** 2 + v[2] ** 2);
-        
-        if (speed < 0.01 && speed > 0) { 
-          const UP = new THREE.Vector3(0, 1, 0);
-          let maxDot = -1;
-          let detectedValue = null;
-  
-          textConfig.forEach((cfg) => {
-            const faceNormal = cfg.pos.clone().normalize().applyQuaternion(currentQuaternion);
-            const dot = faceNormal.dot(UP);
-            if (dot > maxDot) {
-              maxDot = dot;
-              detectedValue = cfg.num;
-            }
-          });
-  
-          if (detectedValue !== null) {
-            hasSettled.current = true; 
-            onResult(detectedValue);
+  const spawnTime = useRef(Date.now());
+
+  useEffect(() => {
+    if (isStatic || !onResult) return;
+    hasSettled.current = false;
+    spawnTime.current = Date.now();
+
+    let currentQuaternion = new THREE.Quaternion();
+
+    const unsubsQuat = api.quaternion.subscribe(q => {
+      currentQuaternion.set(q[0], q[1], q[2], q[3]);
+    });
+
+    const unsubsVel = api.velocity.subscribe(v => {
+      if (hasSettled.current) return;
+      if (Date.now() - spawnTime.current < 800) return;
+
+      const speed = Math.sqrt(v[0] ** 2 + v[1] ** 2 + v[2] ** 2);
+      
+      if (speed < 0.01 && speed > 0) { 
+        const UP = new THREE.Vector3(0, 1, 0);
+        let maxDot = -1;
+        let detectedValue = null;
+
+        textConfig.forEach((cfg) => {
+          const faceNormal = cfg.pos.clone().normalize().applyQuaternion(currentQuaternion);
+          const dot = faceNormal.dot(UP);
+          if (dot > maxDot) {
+            maxDot = dot;
+            detectedValue = cfg.num;
           }
+        });
+
+        
+        if (maxDot < 0.99) {
+          api.position.set(0, 8, 0); 
+          api.velocity.set(Math.random() * 4 - 2, 0, Math.random() * 4 - 2);
+          api.angularVelocity.set(
+            Math.random() * 30 - 15,
+            Math.random() * 30 - 15,
+            Math.random() * 30 - 15
+          );
+          spawnTime.current = Date.now();
+          return; 
         }
-      });
-  
-      return () => {
-        unsubsQuat();
-        unsubsVel();
-      };
-    }, [api, isStatic, onResult, textConfig]);
+
+        if (detectedValue !== null) {
+          hasSettled.current = true; 
+          onResult(detectedValue);
+        }
+      }
+    });
+
+    return () => {
+      unsubsQuat();
+      unsubsVel();
+    };
+  }, [api, isStatic, onResult, textConfig, rollId]);
 
   return (
     <group ref={ref}>

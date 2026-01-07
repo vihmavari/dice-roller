@@ -152,10 +152,42 @@ export const D4 = ({ isStatic, onResult, rollId, ...props }) => {
       const speed = Math.sqrt(v[0]**2 + v[1]**2 + v[2]**2);
 
       if (speed < 0.01 && speed > 0) {
+        const worldVertices = uniqueVertices.map(v => 
+          v.clone().applyQuaternion(currentQuaternion.current)
+        );
+
+        const sortedByHeight = [...worldVertices].sort((a, b) => b.y - a.y);
+        const topVertex = sortedByHeight[0];
+
+        const distinctVertices = sortedByHeight.filter(v => v.distanceTo(topVertex) > 0.1);
+        const secondVertex = distinctVertices[0];
+
+        if (secondVertex) {
+          const topStability = topVertex.y - secondVertex.y;
+
+          if (topStability < 1.5) {
+            api.position.set(0, 10, 0); 
+            api.velocity.set(
+              Math.random() * 4 - 2, 
+              2, 
+              Math.random() * 4 - 2
+            );
+            api.angularVelocity.set(
+              Math.random() * 30 - 15,
+              Math.random() * 30 - 15,
+              Math.random() * 30 - 15
+            );
+
+            spawnTime.current = Date.now();
+            hasSettled.current = false; 
+
+            return;
+          }
+        }
+
         let maxWorldY = -Infinity;
         let topVertexIdx = -1;
 
-        // Для D4 ищем вершину с максимальной координатой Y в мировом пространстве
         uniqueVertices.forEach((v, idx) => {
           const worldV = v.clone().applyQuaternion(currentQuaternion.current);
           if (worldV.y > maxWorldY) {
@@ -165,13 +197,14 @@ export const D4 = ({ isStatic, onResult, rollId, ...props }) => {
         });
 
         if (topVertexIdx !== -1) {
-          // Вычисляем число на основе твоей логики нумерации вершин
           const sortedIndices = uniqueVertices
             .map((v, idx) => ({ v, idx }))
             .sort((a, b) => b.v.y - a.v.y || b.v.z - a.v.z || b.v.x - a.v.x);
           
           const vertexToNumber = {};
-          sortedIndices.forEach((item, i) => { vertexToNumber[item.idx] = i + 1; });
+          sortedIndices.forEach((item, i) => {
+            vertexToNumber[item.idx] = i + 1;
+          });
 
           const detectedValue = Math.trunc((vertexToNumber[topVertexIdx] - 1) / 3) + 1;
 

@@ -417,7 +417,7 @@ export const Footer = ({ diceTypes, onRoll, activeType, onCustom, active_tab }) 
         width: '90%',
         maxWidth: '400px',
         display: 'grid',
-        gridTemplateColumns: active_tab === 'roller' ? 'repeat(4, 1fr)' : 'repeat(auto-fit, minmax(60px, 1fr))', 
+        gridTemplateColumns: active_tab === 'roller' ? 'repeat(4, 1fr)' : 'repeat(auto-fit, minmax(80px, 1fr))', 
         gap: '6px',
       }}
     >

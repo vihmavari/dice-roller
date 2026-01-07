@@ -107,7 +107,7 @@ export const DiceScene = ({ lastRoll, isPhysicsEnabled, onPhysicsResult }) => (
       <orthographicCamera attach="shadow-camera" args={[-10, 10, 10, -10, 0.5, 30]} />
     </directionalLight>
     <ambientLight intensity={1} />
-    <pointLight position={[0, 10, 0]} intensity={1.5} castShadow />
+    <pointLight position={[0, 100, 0]} intensity={1.5} castShadow />
     
     {isPhysicsEnabled ? (
       <Physics 

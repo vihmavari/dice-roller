@@ -141,7 +141,7 @@ export const D8 = ({ isStatic, onResult, rollId, ...props }) => {
 
     const unsubsVel = api.velocity.subscribe(v => {
       if (hasSettled.current) return;
-      if (Date.now() - spawnTime.current < 600) return;
+      if (Date.now() - spawnTime.current < 800) return;
 
       const speed = Math.sqrt(v[0] ** 2 + v[1] ** 2 + v[2] ** 2);
       
@@ -159,6 +159,18 @@ export const D8 = ({ isStatic, onResult, rollId, ...props }) => {
           }
         });
 
+        if (maxDot < 0.99) {
+          api.position.set(0, 8, 0); 
+          api.velocity.set(Math.random() * 4 - 2, 0, Math.random() * 4 - 2);
+          api.angularVelocity.set(
+            Math.random() * 30 - 15,
+            Math.random() * 30 - 15,
+            Math.random() * 30 - 15
+          );
+          spawnTime.current = Date.now();
+          return; 
+        }
+
         if (detectedValue !== null) {
           hasSettled.current = true; 
           onResult(detectedValue);
@@ -170,7 +182,7 @@ export const D8 = ({ isStatic, onResult, rollId, ...props }) => {
       unsubsQuat();
       unsubsVel();
     };
-  }, [api, isStatic, onResult, textConfig]);
+  }, [api, isStatic, onResult, textConfig, rollId]);
 
   return (
     <group ref={ref} dispose={null}>
