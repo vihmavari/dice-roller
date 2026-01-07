@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { RotateCcw, Settings2 } from 'lucide-react';
 import { useDiceTheme } from './context/DiceContext';
+import { useRoll } from './context/RollContext';
 
 
 export const TabSwitcher = ({ tab, setTab, onSettings }) => (
@@ -163,6 +164,200 @@ export const SettingsPanel = ({ onClose }) => {
   );
 };
 
+const formatDicePool = (pool) => {
+  if (!pool || pool.length === 0) return "Пустой пул";
+  return pool.map(d => `${d.count}${d.type.toLowerCase()}`).join(' + ');
+};
+
+export const ChooseCustomPanel = ({ onClose, onSelect }) => {
+  const { formulaList, addFormula, delFormula, editFormula } = useRoll();
+  const [isExiting, setIsExiting] = useState(false);
+  
+  const [editingIndex, setEditingIndex] = useState(null);
+
+  const handleClose = () => {
+    setIsExiting(true);
+    setTimeout(() => onClose(), 300);
+  };
+
+  const handleSelect = (formula) => {
+    if (onSelect) {
+        onSelect(formula.dice_pool); 
+        handleClose();
+    }
+  };
+
+  const handleDelete = (e, index) => {
+    e.stopPropagation();
+    if (window.confirm('Удалить этот шаблон?')) {
+      delFormula(index);
+    }
+  };
+
+  const handleEditClick = (e, index) => {
+    e.stopPropagation();
+    setEditingIndex(index);
+  };
+
+  const handleCreateClick = () => {
+    setEditingIndex(-1);
+  };
+
+  const handleBackToList = () => {
+    setEditingIndex(null);
+  };
+
+  return (
+    <div className={`settings-overlay ${isExiting ? 'fadeOut' : 'fadeIn'}`}>
+      <div className={`settings-content ${isExiting ? 'scaleDown' : 'scaleUp'}`}>
+        
+        <div className="settings-header">
+          <h2 className="text-xl font-bold">
+            {editingIndex !== null 
+              ? (editingIndex === -1 ? 'Новый шаблон' : 'Редактирование') 
+              : 'Кастомные шаблоны'}
+          </h2>
+          <button className="close-button" onClick={handleClose}>&times;</button>
+        </div>
+
+        <div className="settings-body" style={{ maxHeight: '60vh', overflowY: 'auto', padding: '10px' }}>
+          
+          {editingIndex === null && (
+            <div className="flex flex-col gap-3">
+              {formulaList.length === 0 && (
+                <div className="text-center text-gray-500 py-4"><i>Нет сохраненных шаблонов...</i></div>
+              )}
+
+              {formulaList.map((item, idx) => (
+                <div 
+                  key={idx} 
+                  className="formula-card"
+                  onClick={() => handleSelect(item)}
+                >
+                  <div className="formula-name"><b>{item.roll_name}</b></div>
+                  
+                  {/* Кнопки управления (уедут вправо-верх) */}
+                  <div className="formula-actions">
+                    <button 
+                      className="icon-btn edit-btn" 
+                      onClick={(e) => handleEditClick(e, idx)}
+                    >
+                      ✎
+                    </button>
+                    <button 
+                      className="icon-btn del-btn" 
+                      onClick={(e) => handleDelete(e, idx)}
+                    >
+                      🗑
+                    </button>
+                  </div>
+
+                  <div className="formula-details">
+                    <i>{formatDicePool(item.dice_pool)}</i>
+                  </div>
+                </div>
+              ))}
+
+              <button className="add-formula-btn" onClick={handleCreateClick}>
+                + Новый шаблон
+              </button>
+            </div>
+          )}
+
+          {editingIndex !== null && (
+            <FormulaEditor 
+              index={editingIndex}
+              initialData={editingIndex === -1 ? null : formulaList[editingIndex]}
+              onSave={(data) => {
+                if (editingIndex === -1) addFormula(data);
+                else editFormula(editingIndex, data);
+                setEditingIndex(null);
+              }}
+              onCancel={handleBackToList}
+            />
+          )}
+
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const FormulaEditor = ({ index, initialData, onSave, onCancel }) => {
+  const [name, setName] = useState(initialData?.roll_name || "");
+  const [pool, setPool] = useState(initialData?.dice_pool || []);
+
+  const diceTypes = ['D4', 'D6', 'D8', 'D10', 'D12', 'D20'];
+
+  const changeDiceCount = (type, delta) => {
+    setPool(prev => {
+      const existing = prev.find(d => d.type === type);
+      let newPool = [...prev];
+      if (existing) {
+        newPool = newPool.map(d => 
+          d.type === type ? { ...d, count: Math.max(0, d.count + delta) } : d
+        );
+      } else if (delta > 0) {
+        newPool.push({ type, count: 1 });
+      }
+      return newPool.filter(d => d.count > 0);
+    });
+  };
+
+  const getCount = (type) => pool.find(d => d.type === type)?.count || 0;
+
+  const handleSave = () => {
+    if (!name.trim()) return alert("Введите название");
+    if (pool.length === 0) return alert("Выберите хотя бы один кубик");
+    onSave({ roll_name: name, dice_pool: pool });
+  };
+
+  return (
+    <div className="editor-container">
+      <input 
+        type="text" 
+        className="editor-input"
+        placeholder="Название шаблона..."
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
+
+      <div className="dice-grid">
+        {diceTypes.map(type => (
+          <div key={type} className="dice-counter-row">
+            <span className="dice-type-label">{type}</span>
+            <div className="counter-controls">
+              <button 
+                className="circle-btn" 
+                onClick={() => changeDiceCount(type, -1)} 
+                disabled={getCount(type) === 0}
+              >
+                <span>−</span>
+              </button>
+              <span className="count-display">{getCount(type)}</span>
+              <button 
+                className="circle-btn" 
+                onClick={() => changeDiceCount(type, 1)}
+              >
+                <span>+</span>
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="editor-footer-actions">
+        <button className="footer-btn btn-cancel" onClick={onCancel}>
+          Отмена
+        </button>
+        <button className="footer-btn btn-save" onClick={handleSave}>
+          Сохранить
+        </button>
+      </div>
+    </div>
+  );
+};
+
 export const Footer = ({ diceTypes, onRoll, activeType, onCustom }) => (
   <div style={{
     position: 'absolute',
@@ -179,9 +374,8 @@ export const Footer = ({ diceTypes, onRoll, activeType, onCustom }) => (
       style={{ 
         pointerEvents: 'auto',
         width: '90%',
-        maxWidth: '400px', // Ограничиваем ширину, чтобы сетка не растягивалась слишком сильно
+        maxWidth: '400px',
         display: 'grid',
-        // Создаем сетку: 4 колонки (или сколько влезет), автоматически перенося на 2 строки
         gridTemplateColumns: 'repeat(4, 1fr)', 
         gap: '6px',
       }}

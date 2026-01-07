@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { DiceScene } from './components/dice/DiceScene';
-import { SettingsPanel, TabSwitcher, InfoPanel, Footer } from './UI';
+import { SettingsPanel, ChooseCustomPanel, TabSwitcher, InfoPanel, Footer } from './UI';
 
 export default function DiceApp() {
 
@@ -21,16 +21,18 @@ export default function DiceApp() {
 
   const [tab, setTab] = useState('gallery');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isChooseCustomOpen, setIsChooseCustomOpen] = useState(false);
   const [lastRoll, setLastRoll] = useState({ type: 'd20', result: null, id: 0 });
   const [history, setHistory] = useState([]);
 
   const diceTypes = ['D4', 'D6', 'D8', 'D10', 'D12', 'D20', 'D100'];
   
-  const handleCustomRoll = () => {
-  const customFormula = [
-    { type: 'D10', count: 20 },
+
+  const defaultFormula = [
+    { type: 'D10', count: 5 },
   ];
-  
+
+  const handleCustomRoll = ( customFormula=defaultFormula ) => {
   const newRoll = { 
     type: 'custom', 
     formula: customFormula,
@@ -45,14 +47,9 @@ export default function DiceApp() {
     const isPhysDice = true;
     const sides = parseInt(dType.substring(1));
     
-    // Для PhysDice ставим null, для остальных — считаем сразу
     const result = isPhysDice ? null : (Math.floor(Math.random() * sides) + 1);
     const newRoll = { 
       type: dType.toLowerCase(), 
-      formula: dType === 'CUSTOM' ? [
-      { type: 'D6', count: 2 },
-      { type: 'D8', count: 3 }
-    ] : null,
       result, 
       id: Date.now() 
     };
@@ -130,12 +127,21 @@ export default function DiceApp() {
           diceTypes={diceTypes} 
           onRoll={handleRoll} 
           activeType={lastRoll.type} 
-          onCustom={handleCustomRoll}
+          onCustom={() => setIsChooseCustomOpen(true)}
         />
 
         {isSettingsOpen && (
           <div style={{ pointerEvents: 'auto' }}> 
              <SettingsPanel onClose={() => setIsSettingsOpen(false)} />
+          </div>
+        )}
+
+        {isChooseCustomOpen && (
+          <div style={{ pointerEvents: 'auto' }}> 
+             <ChooseCustomPanel 
+              onClose={() => setIsChooseCustomOpen(false)} 
+              onSelect={ (dicePool) => { handleCustomRoll(dicePool); } }
+            />
           </div>
         )}
       </div>
