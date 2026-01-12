@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { RotateCcw, Settings2 } from 'lucide-react';
+import { RotateCcw, Palette, PencilLine, Trash2 } from 'lucide-react';
 import { useDiceTheme } from './context/DiceContext';
 import { useRoll } from './context/RollContext';
 
@@ -45,7 +45,7 @@ export const TabSwitcher = ({ tab, setTab, onSettings }) => (
         onClick={onSettings}
         className="absolute -bottom-10 right-0 p-2 bg-gray-800 hover:bg-gray-700 rounded text-white transition-colors"
       >
-        <Settings2 size={14} />
+        <Palette size={18} strokeWidth={3}/>
       </button>
     </div>
   </div>
@@ -283,13 +283,13 @@ export const ChooseCustomPanel = ({ onClose, onSelect }) => {
                       className="icon-btn edit-btn" 
                       onClick={(e) => handleEditClick(e, idx)}
                     >
-                      ✎
+                      <PencilLine strokeWidth={3}/>
                     </button>
                     <button 
                       className="icon-btn del-btn" 
                       onClick={(e) => handleDelete(e, idx)}
                     >
-                      🗑
+                      <Trash2 strokeWidth={3}/>
                     </button>
                   </div>
 

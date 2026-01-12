@@ -233,11 +233,12 @@ input[type="color"]::-webkit-color-swatch {
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 10px;
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.05);
   border: none;
   color: white;
-  font-size: 1.1rem;
+  /* font-size: 1.3rem; */
   transition: background 0.2s;
 }
 
