@@ -188,8 +188,12 @@ export const D20 = ({ isStatic, onResult, rollId, ...props }) => {
   return (
     <group ref={ref}>
       <mesh castShadow receiveShadow geometry={geometry}>
-        <meshStandardMaterial color={theme.bodyColor} roughness={0.2} flatShading />
-        <Edges threshold={15} color={theme.edgeColor} lineWidth={2} />
+        <meshStandardMaterial color={theme.bodyColor} roughness={0.2} flatShading 
+          polygonOffset 
+          polygonOffsetFactor={2} 
+          polygonOffsetUnits={2}
+        />
+        <Edges threshold={30} color={theme.edgeColor} lineWidth={2} />
       </mesh>
 
       {textConfig.map((cfg, idx) => (

@@ -113,7 +113,11 @@ export const D6 = ({ isStatic, onResult, rollId, ...props }) => {
   return (
     <mesh ref={ref} castShadow receiveShadow>
       <boxGeometry args={[1.5, 1.5, 1.5]} />
-      <meshStandardMaterial color={theme.bodyColor} roughness={0.2} flatShading />
+      <meshStandardMaterial color={theme.bodyColor} roughness={0.2} flatShading 
+          polygonOffset 
+          polygonOffsetFactor={2} 
+          polygonOffsetUnits={2}
+        />
       <Edges threshold={15} color={theme.edgeColor} lineWidth={2} />
             
       {textConfig.map((cfg, idx) => (
