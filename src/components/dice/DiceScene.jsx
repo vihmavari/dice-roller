@@ -115,7 +115,7 @@ export const DiceScene = ({ lastRoll, isPhysicsEnabled, onPhysicsResult }) => (
     }}
   >
     <directionalLight
-      position={[0, 20, 0]}
+      position={[5, 20, 5]}
       intensity={1.5}
       castShadow
       shadow-mapSize={[4096, 4096]} 
