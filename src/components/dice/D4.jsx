@@ -110,6 +110,7 @@ export const D4 = ({ isStatic, onResult, rollId, ...props }) => {
   const [ref, api] = useConvexPolyhedron(() => ({
     mass: isStatic ? 0 : 1.5,
     args: physicsArgs,
+    allowSleep: true,
     position: isStatic ? [0, 0, 0] : [0, 6, 0],
     rotation: isStatic 
         ? [0.5, 0.5, 0]
