@@ -113,7 +113,7 @@ export const D6 = ({ isStatic, onResult, rollId, ...props }) => {
   return (
     <mesh ref={ref} castShadow receiveShadow>
       <boxGeometry args={[1.5, 1.5, 1.5]} />
-      <meshStandardMaterial color={theme.bodyColor} roughness={0.2} flatShading 
+      <meshStandardMaterial color={theme.bodyColor} roughness={0.55} flatShading 
           polygonOffset 
           polygonOffsetFactor={2} 
           polygonOffsetUnits={2}

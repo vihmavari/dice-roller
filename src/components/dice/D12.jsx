@@ -196,7 +196,7 @@ export const D12 = ({ isStatic, onResult, rollId, ...props }) => {
   return (
     <group ref={ref}>
       <mesh castShadow geometry={geometry}>
-        <meshStandardMaterial color={theme.bodyColor} roughness={0.2} flatShading 
+        <meshStandardMaterial color={theme.bodyColor} roughness={0.55} flatShading 
           polygonOffset 
           polygonOffsetFactor={2} 
           polygonOffsetUnits={2}
