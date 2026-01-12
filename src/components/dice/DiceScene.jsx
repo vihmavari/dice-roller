@@ -21,7 +21,8 @@ const PhysicsFloor = ({ height = 0 }) => {
     rotation: [-Math.PI / 2, 0, 0], 
     position: [0, height, 0],
     friction: 0.1,
-    restitution: 0.5
+    restitution: 0.5,
+    // polygonOffset: 0.1
   }));
 
   return (
@@ -96,33 +97,50 @@ const Wall = ({ index, total, radius, width }) => {
   );
 };
 
-export const DiceScene = ({ lastRoll, isPhysicsEnabled, onPhysicsResult }) => (  
-  <Canvas shadows camera={{ position: [0, 10, 15], fov: 35 }}>
+export const DiceScene = ({ lastRoll, isPhysicsEnabled, onPhysicsResult }) => (   
+  <Canvas 
+    // shadows={{ type: THREE.PCFSoftShadowMap }}
+    shadows
+    onCreated={({ gl }) => {
+      gl.shadowMap.autoUpdate = true;
+      gl.shadowMap.type = THREE.PCFSoftShadowMap;
+    }}
+    camera={{ position: [0, 15, 20], fov: 35 }}
+    performance={{ min: 0.5 }}
+    gl={{ 
+      antialias: true, 
+      powerPreference: "high-performance",
+      stencil: false,
+      depth: true
+    }}
+  >
     <directionalLight
-      position={[5, 15, 5]}
+      position={[0, 20, 0]}
       intensity={1.5}
       castShadow
-      shadow-mapSize={[1024, 1024]}
+      shadow-mapSize={[4096, 4096]} 
+      shadow-bias={-0.0001}
+      shadow-radius={4}
     >
-      <orthographicCamera attach="shadow-camera" args={[-10, 10, 10, -10, 0.5, 30]} />
+      <orthographicCamera 
+        attach="shadow-camera" 
+        args={[-25, 25, 25, -25, 5, 150]} 
+      />
+      
     </directionalLight>
-    <ambientLight intensity={1} />
-    <pointLight position={[0, 100, 0]} intensity={1.5} castShadow />
-    
+
+    <ambientLight intensity={1.5} />
+    <pointLight position={[-10, 10, -10]} intensity={0.4} /> 
+
     {isPhysicsEnabled ? (
       <Physics 
         gravity={[0, -9.81, 0]}
         tolerance={0.001}
         size={10}
         iterations={20}
-        allowSleep 
+        allowSleep={true} 
         broadphase="SAP"
-        defaultContactMaterial={{
-          contactEquationStiffness: 1e5,
-          contactEquationRelaxation: 3,
-          friction: 0.1,
-          restitution: 0.3
-        }}>
+      >
         <PhysicsFloor />
         <InvisibleWalls />
 
@@ -142,10 +160,8 @@ export const DiceScene = ({ lastRoll, isPhysicsEnabled, onPhysicsResult }) => (
             onResult={onPhysicsResult} 
           />
         )}
-
       </Physics>
     ) : (
-      /* Оборачиваем превью в физику с нулевой гравитацией */
       <Physics gravity={[0, 0, 0]}>
         <Center>
           <DicePreview type={lastRoll.type} />
@@ -153,12 +169,13 @@ export const DiceScene = ({ lastRoll, isPhysicsEnabled, onPhysicsResult }) => (
       </Physics>
     )}
     <OrbitControls 
-      minDistance={3} 
+      minDistance={15} 
       maxDistance={50} 
-      maxPolarAngle={Math.PI / 2.1}
+      maxPolarAngle={Math.PI / 3}
       enableDamping={true}
       dampingFactor={0.05}
       enablePan={false}
+      makeDefault
     />
   </Canvas>
 );
